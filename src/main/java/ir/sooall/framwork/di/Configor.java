@@ -65,22 +65,9 @@ public class Configor {
 
         try (ClassHunter.SearchResult result = classHunter.findBy(searchConfig)) {
             Collection<Class<?>> types = result.getClasses();
-            System.out.println("Configor >> initFramework >> types : ");
-            types.forEach(System.out::println);
             var handlers = BeanUtil.handlers(types);
-            System.out.println("Configor >> initFramework >> handlers : ");
-            handlers.forEach(System.out::println);
             iterateOverHandlers(handlers, putInDiMap, invokeHandler);
-            System.out.println("Configor >> initFramework >> putInDiMap : ");
-            diMap.entrySet().forEach(System.out::println);
-
-            System.out.println("Configor >> initFramework >> applicationScope >> handler with no arguments : ");
-            applicationScope.entrySet().forEach(System.out::println);
-
             iterateOverHandlers(handlers, resolveDependencies);
-            System.out.println("Configor >> initFramework >> applicationScope >> handler with arguments: ");
-            applicationScope.entrySet().forEach(System.out::println);
-
 
         } catch (Throwable e) {
             e.printStackTrace();

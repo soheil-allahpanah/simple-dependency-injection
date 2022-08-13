@@ -45,10 +45,8 @@ public class BeanUtil {
 
 
     public static void resolve(Configor configor, ContextAndMethodHandle contextAndMethodHandle) throws Throwable {
-        System.out.println("BeanUtil >> resolve >> " + contextAndMethodHandle);
         var handle = contextAndMethodHandle.handle();
         var resolvedObject = configor.getBeanInstance(handle.type().returnType());
-        System.out.println("BeanUtil >> resolve >> resolvedObjects " + resolvedObject);
         if (resolvedObject == null) {
             List<Object> resolvedObjects = new ArrayList<>();
             List<Class<?>> unresolvedParams = new ArrayList<>();
@@ -60,39 +58,19 @@ public class BeanUtil {
                     unresolvedParams.add(param);
                 }
             }
-            System.out.println("BeanUtil >> resolve >> resolvedObjects ");
-            resolvedObjects.forEach(System.out::println);
-            System.out.println("BeanUtil >> resolve >> unresolvedParams ");
-            unresolvedParams.forEach(System.out::println);
-
-            System.out.println("BeanUtil >> resolve >> resolvedObjects.size() != handle.type().parameterCount() - 1 : "
-                + (resolvedObjects.size() != handle.type().parameterCount() - 1));
             if (resolvedObjects.size() != handle.type().parameterCount() - 1) {
                 for (var param : unresolvedParams) {
-                    System.out.println("-----------recursive call begin---------------");
                     resolve(configor, configor.handleMap.get(param));
                     resolvedObjects.add(configor.applicationScope.get(param));
-                    System.out.println("-----------recursive call end-----------------");
-//                    configor.applicationScope.put(handle.type().returnType(), result);
-
                 }
             }
-            resolvedObjects.forEach(System.out::println);
-            System.out.println(handle.type().returnType());
-            System.out.println(contextAndMethodHandle.context());
             Object[] args = new Object[resolvedObjects.size() + 1];
             args[0] = contextAndMethodHandle.context();
             for (int i = 1; i < args.length; i++) {
                 args[i] = resolvedObjects.get(i - 1);
             }
-            var result = handle.invokeWithArguments(args);
-            System.out.println(result);
-            configor.applicationScope.put(handle.type().returnType(), result);
-
-//                return result;
+            configor.applicationScope.put(handle.type().returnType(), handle.invokeWithArguments(args));
         }
-//        return resolvedObject;
-
     }
 
 }
